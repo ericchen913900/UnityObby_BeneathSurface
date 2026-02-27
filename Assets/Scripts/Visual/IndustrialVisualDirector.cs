@@ -9,34 +9,26 @@ namespace BeneathSurface.Visual
         [SerializeField] private Color baseColor = new Color(0.15f, 0.17f, 0.2f, 1f);
         [SerializeField] private Color trimColor = new Color(0.32f, 0.36f, 0.42f, 1f);
         [SerializeField] private Color emissiveColor = new Color(0.95f, 0.45f, 0.12f, 1f);
-        [SerializeField] private float glowToRuinsZ = 45f;
-        [SerializeField] private float ruinsToFaultZ = 86f;
+        [SerializeField] private float glowToRuinsX = 45f;
+        [SerializeField] private float ruinsToFaultX = 86f;
 
-        private readonly List<Material> _runtimeMaterials = new List<Material>();
         private readonly List<Texture2D> _runtimeTextures = new List<Texture2D>();
+        private readonly List<Sprite> _runtimeSprites = new List<Sprite>();
 
-        private Texture2D _glowTexture;
-        private Texture2D _ruinsTexture;
-        private Texture2D _faultTexture;
-        private Texture2D _hazardTexture;
+        private Sprite _glowSprite;
+        private Sprite _ruinsSprite;
+        private Sprite _faultSprite;
+        private Sprite _hazardSprite;
 
         private void Start()
         {
             CreatePatternSet();
-            ApplyToAllRenderers();
-            CreateDepthLights();
+            ApplyToAllSprites();
+            CreateDepthBeacons();
         }
 
         private void OnDestroy()
         {
-            for (var i = 0; i < _runtimeMaterials.Count; i++)
-            {
-                if (_runtimeMaterials[i] != null)
-                {
-                    Destroy(_runtimeMaterials[i]);
-                }
-            }
-
             for (var i = 0; i < _runtimeTextures.Count; i++)
             {
                 if (_runtimeTextures[i] != null)
@@ -44,25 +36,37 @@ namespace BeneathSurface.Visual
                     Destroy(_runtimeTextures[i]);
                 }
             }
+
+            for (var i = 0; i < _runtimeSprites.Count; i++)
+            {
+                if (_runtimeSprites[i] != null)
+                {
+                    Destroy(_runtimeSprites[i]);
+                }
+            }
         }
 
         private void CreatePatternSet()
         {
-            _glowTexture = Track(PatternTextureFactory.CreateBiomeTexture(BiomeVisualType.GlowCaves, 64));
-            _ruinsTexture = Track(PatternTextureFactory.CreateBiomeTexture(BiomeVisualType.VerticalRuins, 64));
-            _faultTexture = Track(PatternTextureFactory.CreateBiomeTexture(BiomeVisualType.CrustFault, 64));
-            _hazardTexture = Track(PatternTextureFactory.CreateBiomeTexture(BiomeVisualType.Hazard, 64));
+            _glowSprite = CreateSprite(BiomeVisualType.GlowCaves);
+            _ruinsSprite = CreateSprite(BiomeVisualType.VerticalRuins);
+            _faultSprite = CreateSprite(BiomeVisualType.CrustFault);
+            _hazardSprite = CreateSprite(BiomeVisualType.Hazard);
         }
 
-        private Texture2D Track(Texture2D texture)
+        private Sprite CreateSprite(BiomeVisualType type)
         {
+            var texture = PatternTextureFactory.CreateBiomeTexture(type, 64);
             _runtimeTextures.Add(texture);
-            return texture;
+            var sprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 32f);
+            sprite.name = type + "Sprite";
+            _runtimeSprites.Add(sprite);
+            return sprite;
         }
 
-        private void ApplyToAllRenderers()
+        private void ApplyToAllSprites()
         {
-            var renderers = Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None);
+            var renderers = Object.FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None);
             for (var i = 0; i < renderers.Length; i++)
             {
                 var r = renderers[i];
@@ -71,42 +75,30 @@ namespace BeneathSurface.Visual
                     continue;
                 }
 
-                var mat = new Material(Shader.Find("Standard"));
                 var isHazard = r.name.Contains("Laser") || r.name.Contains("Pit");
-                var textureType = ResolveTextureType(r.transform.position.z, isHazard);
+                var textureType = ResolveTextureType(r.transform.position.x, isHazard);
                 var biome = ToBiomeKind(textureType);
 
-                mat.mainTexture = ResolveTexture(textureType);
-                mat.mainTextureScale = isHazard ? new Vector2(1f, 1f) : new Vector2(1.8f, 1.8f);
-                mat.color = isHazard
+                r.sprite = ResolveSprite(textureType);
+                r.color = isHazard
                     ? trimColor
                     : Color.Lerp(baseColor, StageBiomeService.GetBiomeTint(biome), 0.58f);
-                mat.SetFloat("_Glossiness", textureType == BiomeVisualType.CrustFault ? 0.34f : 0.22f);
-
-                if (isHazard)
-                {
-                    mat.EnableKeyword("_EMISSION");
-                    mat.SetColor("_EmissionColor", emissiveColor * 0.8f);
-                }
-
-                r.material = mat;
-                _runtimeMaterials.Add(mat);
             }
         }
 
-        private BiomeVisualType ResolveTextureType(float z, bool isHazard)
+        private BiomeVisualType ResolveTextureType(float x, bool isHazard)
         {
             if (isHazard)
             {
                 return BiomeVisualType.Hazard;
             }
 
-            if (z < glowToRuinsZ)
+            if (x < glowToRuinsX)
             {
                 return BiomeVisualType.GlowCaves;
             }
 
-            if (z < ruinsToFaultZ)
+            if (x < ruinsToFaultX)
             {
                 return BiomeVisualType.VerticalRuins;
             }
@@ -114,18 +106,18 @@ namespace BeneathSurface.Visual
             return BiomeVisualType.CrustFault;
         }
 
-        private Texture2D ResolveTexture(BiomeVisualType visualType)
+        private Sprite ResolveSprite(BiomeVisualType visualType)
         {
             switch (visualType)
             {
                 case BiomeVisualType.GlowCaves:
-                    return _glowTexture;
+                    return _glowSprite;
                 case BiomeVisualType.VerticalRuins:
-                    return _ruinsTexture;
+                    return _ruinsSprite;
                 case BiomeVisualType.CrustFault:
-                    return _faultTexture;
+                    return _faultSprite;
                 default:
-                    return _hazardTexture;
+                    return _hazardSprite;
             }
         }
 
@@ -144,19 +136,19 @@ namespace BeneathSurface.Visual
             }
         }
 
-        private void CreateDepthLights()
+        private void CreateDepthBeacons()
         {
             for (var i = 0; i < 4; i++)
             {
-                var marker = new GameObject("DepthLight_" + i);
+                var marker = new GameObject("DepthBeacon_" + i);
                 marker.transform.SetParent(transform);
-                marker.transform.position = new Vector3((i % 2 == 0 ? -3.5f : 3.5f), 2.2f - i * 0.6f, 10f + i * 25f);
+                marker.transform.position = new Vector3(20f + i * 28f, 3.2f - i * 0.45f, 0f);
+                marker.transform.localScale = new Vector3(1.1f, 1.1f, 1f);
 
-                var light = marker.AddComponent<Light>();
-                light.type = LightType.Point;
-                light.range = 12f;
-                light.intensity = 1.2f;
-                light.color = Color.Lerp(new Color(1f, 0.55f, 0.2f), new Color(0.6f, 0.7f, 0.9f), i / 3f);
+                var renderer = marker.AddComponent<SpriteRenderer>();
+                renderer.sprite = _hazardSprite;
+                renderer.sortingOrder = 6;
+                renderer.color = Color.Lerp(emissiveColor, StageBiomeService.GetBiomeTint((StageBiomeService.BiomeKind)Mathf.Clamp(i, 0, 3)), 0.35f);
             }
         }
     }

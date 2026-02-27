@@ -54,9 +54,15 @@ namespace BeneathSurface.Stage
             }
 
             RenderSettings.ambientLight = selected.ambientLight;
-            RenderSettings.fog = true;
+            RenderSettings.fog = false;
             RenderSettings.fogColor = selected.fogColor;
             RenderSettings.fogDensity = selected.fogDensity;
+
+            var cam = Camera.main;
+            if (cam != null)
+            {
+                cam.backgroundColor = selected.fogColor;
+            }
         }
     }
 }

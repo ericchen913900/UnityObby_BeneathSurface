@@ -12,11 +12,21 @@ If there is no `ObbyRunController` in the scene, `AutoBootstrapObby` will automa
 - 10 course segments
 - checkpoints and kill hazards
 - depth atmosphere changes (surface -> deeper layers)
+- industrial visual pass (materials + depth lights)
+- HUD with progress and completion status
 
 ## Controls
 
 - `WASD`: move
 - `Space`: jump
+
+## Optional Open-Source Asset Pull
+
+```bash
+bash scripts/pull_open_assets.sh
+```
+
+Then unpack selected archives from `Assets/OpenSource/Raw` into your Unity `Assets` subfolders.
 
 ## Troubleshooting
 

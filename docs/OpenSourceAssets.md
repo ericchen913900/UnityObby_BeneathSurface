@@ -5,6 +5,29 @@ Target: Unity WebGL obby
 
 Use only assets whose individual files match the listed license terms.
 
+## Quick Pull
+
+From the repository root:
+
+```bash
+bash scripts/pull_open_assets.sh
+```
+
+Downloaded archives are saved into `Assets/OpenSource/Raw`.
+
+## Direct Download Set Used By This Project
+
+1. Kenney Prototype Kit (CC0)
+   - URL: https://opengameart.org/sites/default/files/kenney_prototype-kit.zip
+2. Kenney Prototype Textures (CC0)
+   - URL: https://opengameart.org/sites/default/files/kenney_prototypeTextures.zip
+3. 100 CC0 SFX by rubberduck (CC0)
+   - URL: https://opengameart.org/sites/default/files/100-CC0-SFX_0.zip
+4. Royalty Free Game Loops by Pudgyplatypus (CC0)
+   - URL: https://opengameart.org/sites/default/files/GameLoops.zip
+5. 3xBlast Free Music Pack (CC0)
+   - URL: https://opengameart.org/sites/default/files/3xBlast%20-%20Free%20Music%20Pack.zip
+
 ## Recommended Sources
 
 1. Kenney (Prototype + Platformer Kits)

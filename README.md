@@ -7,6 +7,7 @@ This is a modular obby scaffold for Unity (WebGL-first) with:
 - checkpoint and instant respawn loop
 - obstacle scripts (moving platform, touch kill, timed laser)
 - depth-based atmosphere controller for the theme
+- industrial visual director pass and HUD progress UI
 
 ## Unity Version
 
@@ -28,3 +29,9 @@ This is a modular obby scaffold for Unity (WebGL-first) with:
 - Goal: pass checkpoints and reach deeper sections
 
 Detailed open-source asset references are in `docs/OpenSourceAssets.md`.
+
+## Pull Open-Source Assets
+
+```bash
+bash scripts/pull_open_assets.sh
+```

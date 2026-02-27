@@ -1,3 +1,4 @@
+#if UNITY_INCLUDE_TESTS && BENEATH_SURFACE_ENABLE_TESTS
 using System.Collections.Generic;
 using BeneathSurface.Stage;
 using NUnit.Framework;
@@ -54,3 +55,4 @@ namespace BeneathSurface.Tests.EditMode
         }
     }
 }
+#endif

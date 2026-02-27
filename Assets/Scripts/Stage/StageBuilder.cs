@@ -63,7 +63,14 @@ namespace BeneathSurface.Stage
             {
                 if (_spawned[i] != null)
                 {
-                    DestroyImmediate(_spawned[i]);
+                    if (Application.isPlaying)
+                    {
+                        Destroy(_spawned[i]);
+                    }
+                    else
+                    {
+                        DestroyImmediate(_spawned[i]);
+                    }
                 }
             }
 

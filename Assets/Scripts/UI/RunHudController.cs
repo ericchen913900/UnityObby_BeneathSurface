@@ -10,6 +10,7 @@ namespace BeneathSurface.UI
 
         private GUIStyle _checkpointStyle;
         private GUIStyle _statusStyle;
+        private GUIStyle _storyStyle;
 
         private static readonly Color PanelColor = new Color(0.05f, 0.06f, 0.08f, 0.72f);
         private static readonly Color ProgressBackColor = new Color(0.18f, 0.2f, 0.24f, 0.95f);
@@ -36,23 +37,25 @@ namespace BeneathSurface.UI
             var checkpoint = runController.GetCurrentCheckpointIndex();
             var finish = runController.GetFinishCheckpoint();
             var progress = runController.GetProgress01();
-            var status = runController.HasFinished() ? "Core Reached - Run Complete" : "Descend Beneath The Surface";
+            var status = runController.HasFinished() ? "Core Reached - Run Complete" : "Climb Up Before Collapse";
+            var story = StorylineService.GetObjectiveLine(checkpoint, finish, runController.HasFinished());
 
-            DrawSolid(new Rect(0f, 0f, Screen.width, 92f), PanelColor);
+            DrawSolid(new Rect(0f, 0f, Screen.width, 116f), PanelColor);
             GUI.Label(new Rect(20f, 12f, 600f, 28f), "Depth Progress " + checkpoint + " / " + finish, _checkpointStyle);
             GUI.Label(new Rect(20f, 42f, 600f, 24f), status, _statusStyle);
+            GUI.Label(new Rect(20f, 66f, Screen.width - 40f, 42f), story, _storyStyle);
 
             const float barWidth = 280f;
             const float barHeight = 18f;
             var barX = Screen.width - barWidth - 20f;
-            var barY = 56f;
+            var barY = 78f;
             DrawSolid(new Rect(barX, barY, barWidth, barHeight), ProgressBackColor);
             DrawSolid(new Rect(barX, barY, barWidth * Mathf.Clamp01(progress), barHeight), ProgressFillColor);
         }
 
         private void EnsureStyles()
         {
-            if (_checkpointStyle != null && _statusStyle != null)
+            if (_checkpointStyle != null && _statusStyle != null && _storyStyle != null)
             {
                 return;
             }
@@ -70,6 +73,14 @@ namespace BeneathSurface.UI
                 alignment = TextAnchor.UpperLeft
             };
             _statusStyle.normal.textColor = TextColor;
+
+            _storyStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 13,
+                alignment = TextAnchor.UpperLeft,
+                wordWrap = true
+            };
+            _storyStyle.normal.textColor = TextColor;
         }
 
         private static void DrawSolid(Rect rect, Color color)

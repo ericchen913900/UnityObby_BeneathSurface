@@ -46,7 +46,7 @@ namespace BeneathSurface.Stage
             {
                 var seed = seeds[i % seeds.Count];
                 result.Add(new SegmentLayout(i, seed, cursor));
-                cursor += new Vector3(0f, -seed.DepthLevel * 0.15f, seed.Length);
+                cursor += new Vector3(seed.Length, -seed.DepthLevel * 0.15f, 0f);
             }
 
             return result;

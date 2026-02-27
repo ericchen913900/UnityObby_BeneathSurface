@@ -23,7 +23,7 @@ namespace BeneathSurface.Tests.EditMode
         }
 
         [Test]
-        public void BuildLayout_AdvancesZBySegmentLength()
+        public void BuildLayout_AdvancesXBySegmentLength()
         {
             var defs = new List<StageLayoutPlanner.SegmentSeed>
             {
@@ -34,8 +34,8 @@ namespace BeneathSurface.Tests.EditMode
             var layout = StageLayoutPlanner.BuildLayout(defs, 3, Vector3.zero);
 
             Assert.AreEqual(new Vector3(0f, 0f, 0f), layout[0].Position);
-            Assert.AreEqual(new Vector3(0f, 0f, 10f), layout[1].Position);
-            Assert.AreEqual(new Vector3(0f, 0f, 30f), layout[2].Position);
+            Assert.AreEqual(new Vector3(10f, 0f, 0f), layout[1].Position);
+            Assert.AreEqual(new Vector3(30f, 0f, 0f), layout[2].Position);
         }
 
         [Test]
@@ -50,8 +50,8 @@ namespace BeneathSurface.Tests.EditMode
             var layout = StageLayoutPlanner.BuildLayout(defs, 3, Vector3.zero);
 
             Assert.AreEqual(new Vector3(0f, 0f, 0f), layout[0].Position);
-            Assert.AreEqual(new Vector3(0f, -0.3f, 10f), layout[1].Position);
-            Assert.AreEqual(new Vector3(0f, -0.9f, 20f), layout[2].Position);
+            Assert.AreEqual(new Vector3(10f, -0.3f, 0f), layout[1].Position);
+            Assert.AreEqual(new Vector3(20f, -0.9f, 0f), layout[2].Position);
         }
     }
 }

@@ -10,6 +10,7 @@ namespace BeneathSurface.Core
     public static class AutoBootstrapObby
     {
         private const string RootName = "BeneathSurface_Runtime";
+        private static Sprite _runtimeSprite;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void BuildIfMissing()
@@ -22,7 +23,7 @@ namespace BeneathSurface.Core
             var root = new GameObject(RootName);
             var spawn = new GameObject("SpawnPoint");
             spawn.transform.SetParent(root.transform);
-            spawn.transform.position = new Vector3(0f, 2f, 0f);
+            spawn.transform.position = new Vector3(0f, 1.2f, 0f);
 
             var player = CreatePlayer(root.transform, spawn.transform.position);
             var runController = root.AddComponent<ObbyRunController>();
@@ -40,11 +41,22 @@ namespace BeneathSurface.Core
 
         private static GameObject CreatePlayer(Transform parent, Vector3 spawnPosition)
         {
-            var player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            player.name = "Player";
+            var player = new GameObject("Player");
             player.transform.SetParent(parent);
             player.transform.position = spawnPosition;
-            player.AddComponent<CharacterController>();
+            player.transform.localScale = new Vector3(0.9f, 1.8f, 1f);
+
+            var renderer = player.AddComponent<SpriteRenderer>();
+            renderer.sprite = GetRuntimeSprite();
+            renderer.color = new Color(0.93f, 0.95f, 0.98f, 1f);
+            renderer.sortingOrder = 20;
+
+            var body = player.AddComponent<Rigidbody2D>();
+            body.freezeRotation = true;
+
+            var collider = player.AddComponent<CapsuleCollider2D>();
+            collider.size = new Vector2(0.85f, 1f);
+
             player.AddComponent<PlayerMotor>();
             player.AddComponent<RespawnablePlayer>();
             return player;
@@ -61,7 +73,10 @@ namespace BeneathSurface.Core
             }
 
             cam.transform.SetParent(parent);
-            cam.transform.position = new Vector3(0f, 6f, -8f);
+            cam.orthographic = true;
+            cam.orthographicSize = 5.6f;
+            cam.backgroundColor = new Color(0.08f, 0.1f, 0.14f, 1f);
+            cam.transform.position = new Vector3(3f, 2.4f, -10f);
             var follow = cam.gameObject.GetComponent<FollowCamera>();
             if (follow == null)
             {
@@ -73,25 +88,32 @@ namespace BeneathSurface.Core
 
         private static void CreateBaseFloor(Transform parent)
         {
-            var floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            floor.name = "BaseFloor";
-            floor.transform.SetParent(parent);
-            floor.transform.position = new Vector3(0f, -1.5f, 55f);
-            floor.transform.localScale = new Vector3(16f, 1f, 120f);
+            var floor = CreateSpriteObject(
+                parent,
+                "BaseFloor",
+                new Vector3(58f, -3f, 0f),
+                new Vector2(150f, 1.2f),
+                new Color(0.18f, 0.2f, 0.24f, 1f),
+                -2);
+            floor.gameObject.AddComponent<BoxCollider2D>();
         }
 
         private static void CreateSimpleCourse(Transform parent, ObbyRunController runController)
         {
             for (var i = 0; i < 10; i++)
             {
-                var z = i * 11f;
+                var x = i * 12f;
                 var y = -i * 0.35f;
 
-                var platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                platform.name = $"Platform_{i + 1:00}";
-                platform.transform.SetParent(parent);
-                platform.transform.position = new Vector3(0f, y, z + 4f);
-                platform.transform.localScale = new Vector3(6f, 1f, 8f);
+                var platformRenderer = CreateSpriteObject(
+                    parent,
+                    $"Platform_{i + 1:00}",
+                    new Vector3(x + 4f, y, 0f),
+                    new Vector2(8f, 1.1f),
+                    new Color(0.31f, 0.33f, 0.36f, 1f),
+                    0);
+                var platform = platformRenderer.gameObject;
+                platform.AddComponent<BoxCollider2D>();
 
                 if (i % 2 == 1)
                 {
@@ -101,44 +123,56 @@ namespace BeneathSurface.Core
 
                 var checkpointObj = new GameObject($"Checkpoint_{i + 1:00}");
                 checkpointObj.transform.SetParent(parent);
-                checkpointObj.transform.position = new Vector3(0f, y + 1.2f, z + 7f);
-                var cpCol = checkpointObj.AddComponent<BoxCollider>();
+                checkpointObj.transform.position = new Vector3(x + 8f, y + 1.2f, 0f);
+                var cpCol = checkpointObj.AddComponent<BoxCollider2D>();
                 cpCol.isTrigger = true;
-                cpCol.size = new Vector3(4f, 2f, 1.2f);
+                cpCol.size = new Vector2(1.2f, 2.2f);
                 var cp = checkpointObj.AddComponent<CheckpointTrigger>();
                 cp.Configure(i + 1, runController);
 
+                var checkpointMarker = CreateSpriteObject(
+                    checkpointObj.transform,
+                    "CheckpointMarker",
+                    Vector3.zero,
+                    new Vector2(0.45f, 2f),
+                    new Color(0.65f, 0.86f, 1f, 0.88f),
+                    3);
+                checkpointMarker.transform.localPosition = Vector3.zero;
+
                 if (i == 9)
                 {
-                    var gate = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                    gate.name = "FinalCoreGate";
-                    gate.transform.SetParent(parent);
-                    gate.transform.position = new Vector3(0f, y + 2.2f, z + 9.5f);
-                    gate.transform.localScale = new Vector3(1.8f, 0.2f, 1.8f);
-                    var gateCol = gate.GetComponent<Collider>();
+                    var gate = CreateSpriteObject(
+                        parent,
+                        "FinalCoreGate",
+                        new Vector3(x + 10.5f, y + 1.8f, 0f),
+                        new Vector2(2.6f, 3.8f),
+                        new Color(0.82f, 0.9f, 1f, 0.92f),
+                        1);
+                    var gateCol = gate.gameObject.AddComponent<BoxCollider2D>();
                     gateCol.isTrigger = false;
                 }
 
                 if (i % 3 == 2)
                 {
-                    var laser = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    laser.name = $"Laser_{i + 1:00}";
-                    laser.transform.SetParent(parent);
-                    laser.transform.position = new Vector3(0f, y + 1f, z + 2f);
-                    laser.transform.localScale = new Vector3(5f, 0.35f, 0.5f);
-
-                    var laserCollider = laser.GetComponent<BoxCollider>();
+                    var laser = CreateSpriteObject(
+                        parent,
+                        $"Laser_{i + 1:00}",
+                        new Vector3(x + 2f, y + 1f, 0f),
+                        new Vector2(4.8f, 0.45f),
+                        new Color(0.94f, 0.26f, 0.22f, 1f),
+                        4);
+                    var laserCollider = laser.gameObject.AddComponent<BoxCollider2D>();
                     laserCollider.isTrigger = true;
-                    var laserHazard = laser.AddComponent<TimedLaserHazard>();
-                    laserHazard.Configure(runController, laser.GetComponent<Renderer>());
+                    var laserHazard = laser.gameObject.AddComponent<TimedLaserHazard>();
+                    laserHazard.Configure(runController, laser);
                 }
 
                 var pit = new GameObject($"PitTrigger_{i + 1:00}");
                 pit.transform.SetParent(parent);
-                pit.transform.position = new Vector3(0f, y - 2f, z + 4f);
-                var pitCol = pit.AddComponent<BoxCollider>();
+                pit.transform.position = new Vector3(x + 4f, y - 2.5f, 0f);
+                var pitCol = pit.AddComponent<BoxCollider2D>();
                 pitCol.isTrigger = true;
-                pitCol.size = new Vector3(8f, 1f, 10f);
+                pitCol.size = new Vector2(8f, 1f);
                 var pitKill = pit.AddComponent<KillOnTouch>();
                 pitKill.Configure(runController);
             }
@@ -184,6 +218,41 @@ namespace BeneathSurface.Core
             hudObject.transform.SetParent(parent);
             var hud = hudObject.AddComponent<RunHudController>();
             hud.Configure(runController);
+        }
+
+        private static SpriteRenderer CreateSpriteObject(
+            Transform parent,
+            string name,
+            Vector3 position,
+            Vector2 size,
+            Color color,
+            int sortingOrder)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent);
+            go.transform.position = position;
+            go.transform.localScale = new Vector3(size.x, size.y, 1f);
+
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = GetRuntimeSprite();
+            renderer.color = color;
+            renderer.sortingOrder = sortingOrder;
+            return renderer;
+        }
+
+        private static Sprite GetRuntimeSprite()
+        {
+            if (_runtimeSprite != null)
+            {
+                return _runtimeSprite;
+            }
+
+            var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+            texture.SetPixel(0, 0, Color.white);
+            texture.Apply(false, false);
+            _runtimeSprite = Sprite.Create(texture, new Rect(0f, 0f, 1f, 1f), new Vector2(0.5f, 0.5f), 1f);
+            _runtimeSprite.name = "RuntimeWhiteSprite";
+            return _runtimeSprite;
         }
     }
 }

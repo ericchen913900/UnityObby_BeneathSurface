@@ -26,3 +26,6 @@ ServerData/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Pulled open-source archives (keep out of git history)
+Assets/OpenSource/Raw/

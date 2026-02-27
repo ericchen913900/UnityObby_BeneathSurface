@@ -3,7 +3,7 @@ using BeneathSurface.Player;
 
 namespace BeneathSurface.Core
 {
-    [RequireComponent(typeof(Collider))]
+    [RequireComponent(typeof(Collider2D))]
     public class CheckpointTrigger : MonoBehaviour
     {
         [SerializeField] private int checkpointIndex = 1;
@@ -11,18 +11,36 @@ namespace BeneathSurface.Core
 
         private void Reset()
         {
-            var col = GetComponent<Collider>();
+            var col = GetComponent<Collider2D>();
             col.isTrigger = true;
         }
 
-        private void OnTriggerEnter(Collider other)
+        private void OnTriggerEnter2D(Collider2D other)
         {
-            if (runController == null || other.GetComponent<RespawnablePlayer>() == null)
+            if (runController == null || ResolvePlayer(other) == null)
             {
                 return;
             }
 
             runController.RegisterCheckpoint(checkpointIndex, transform.position);
+        }
+
+        private static RespawnablePlayer ResolvePlayer(Collider2D other)
+        {
+            if (other == null)
+            {
+                return null;
+            }
+
+            var player = other.GetComponent<RespawnablePlayer>();
+            if (player != null)
+            {
+                return player;
+            }
+
+            return other.attachedRigidbody != null
+                ? other.attachedRigidbody.GetComponent<RespawnablePlayer>()
+                : null;
         }
 
         public void Configure(int index, ObbyRunController controller)

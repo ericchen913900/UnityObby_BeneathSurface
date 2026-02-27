@@ -4,24 +4,29 @@ using UnityEngine;
 
 namespace BeneathSurface.Obstacles
 {
-    [RequireComponent(typeof(Collider))]
+    [RequireComponent(typeof(Collider2D))]
     public class TimedLaserHazard : MonoBehaviour
     {
         [SerializeField] private ObbyRunController runController;
         [SerializeField] private float onDuration = 1.25f;
         [SerializeField] private float offDuration = 1.0f;
-        [SerializeField] private Renderer visualRenderer;
+        [SerializeField] private SpriteRenderer visualRenderer;
         [SerializeField] private Color activeColor = new Color(1f, 0.15f, 0.15f, 1f);
         [SerializeField] private Color inactiveColor = new Color(0.35f, 0.35f, 0.35f, 1f);
 
-        private Collider _trigger;
+        private Collider2D _trigger;
         private float _timer;
         private bool _isActive = true;
 
         private void Awake()
         {
-            _trigger = GetComponent<Collider>();
+            _trigger = GetComponent<Collider2D>();
             _trigger.isTrigger = true;
+            if (visualRenderer == null)
+            {
+                visualRenderer = GetComponent<SpriteRenderer>();
+            }
+
             _timer = onDuration;
             ApplyVisual();
         }
@@ -39,9 +44,9 @@ namespace BeneathSurface.Obstacles
             ApplyVisual();
         }
 
-        private void OnTriggerEnter(Collider other)
+        private void OnTriggerEnter2D(Collider2D other)
         {
-            if (!_isActive || runController == null || other.GetComponent<RespawnablePlayer>() == null)
+            if (!_isActive || runController == null || ResolvePlayer(other) == null)
             {
                 return;
             }
@@ -51,9 +56,9 @@ namespace BeneathSurface.Obstacles
 
         private void ApplyVisual()
         {
-            if (visualRenderer != null && visualRenderer.material != null)
+            if (visualRenderer != null)
             {
-                visualRenderer.material.color = _isActive ? activeColor : inactiveColor;
+                visualRenderer.color = _isActive ? activeColor : inactiveColor;
             }
 
             if (_trigger != null)
@@ -62,11 +67,29 @@ namespace BeneathSurface.Obstacles
             }
         }
 
-        public void Configure(ObbyRunController controller, Renderer targetRenderer)
+        public void Configure(ObbyRunController controller, SpriteRenderer targetRenderer)
         {
             runController = controller;
             visualRenderer = targetRenderer;
             ApplyVisual();
+        }
+
+        private static RespawnablePlayer ResolvePlayer(Collider2D other)
+        {
+            if (other == null)
+            {
+                return null;
+            }
+
+            var player = other.GetComponent<RespawnablePlayer>();
+            if (player != null)
+            {
+                return player;
+            }
+
+            return other.attachedRigidbody != null
+                ? other.attachedRigidbody.GetComponent<RespawnablePlayer>()
+                : null;
         }
     }
 }

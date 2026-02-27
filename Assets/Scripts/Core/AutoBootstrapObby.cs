@@ -36,7 +36,6 @@ namespace BeneathSurface.Core
         {
             var player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             player.name = "Player";
-            player.tag = "Player";
             player.transform.SetParent(parent);
             player.transform.position = spawnPosition;
             player.AddComponent<CharacterController>();

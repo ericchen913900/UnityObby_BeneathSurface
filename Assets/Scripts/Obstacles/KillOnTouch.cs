@@ -1,4 +1,5 @@
 using BeneathSurface.Core;
+using BeneathSurface.Player;
 using UnityEngine;
 
 namespace BeneathSurface.Obstacles
@@ -16,7 +17,7 @@ namespace BeneathSurface.Obstacles
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.CompareTag("Player") || runController == null)
+            if (runController == null || other.GetComponent<RespawnablePlayer>() == null)
             {
                 return;
             }

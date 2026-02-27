@@ -1,4 +1,5 @@
 using UnityEngine;
+using BeneathSurface.Player;
 
 namespace BeneathSurface.Core
 {
@@ -16,7 +17,7 @@ namespace BeneathSurface.Core
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.CompareTag("Player") || runController == null)
+            if (runController == null || other.GetComponent<RespawnablePlayer>() == null)
             {
                 return;
             }

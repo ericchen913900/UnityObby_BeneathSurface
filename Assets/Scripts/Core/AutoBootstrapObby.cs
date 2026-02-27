@@ -14,7 +14,7 @@ namespace BeneathSurface.Core
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void BuildIfMissing()
         {
-            if (Object.FindObjectOfType<ObbyRunController>() != null)
+            if (Object.FindFirstObjectByType<ObbyRunController>() != null)
             {
                 return;
             }

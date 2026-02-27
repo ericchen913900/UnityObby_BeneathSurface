@@ -4,7 +4,6 @@ using BeneathSurface.Stage;
 using BeneathSurface.UI;
 using BeneathSurface.Visual;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace BeneathSurface.Core
 {
@@ -181,73 +180,10 @@ namespace BeneathSurface.Core
 
         private static void CreateHud(Transform parent, ObbyRunController runController)
         {
-            var canvasObj = new GameObject("HUD");
-            canvasObj.transform.SetParent(parent);
-            var canvas = canvasObj.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            canvasObj.AddComponent<GraphicRaycaster>();
-
-            var panel = new GameObject("TopPanel");
-            panel.transform.SetParent(canvasObj.transform, false);
-            var panelRect = panel.AddComponent<RectTransform>();
-            panelRect.anchorMin = new Vector2(0f, 1f);
-            panelRect.anchorMax = new Vector2(1f, 1f);
-            panelRect.pivot = new Vector2(0.5f, 1f);
-            panelRect.sizeDelta = new Vector2(0f, 92f);
-            panelRect.anchoredPosition = new Vector2(0f, 0f);
-
-            var panelImage = panel.AddComponent<Image>();
-            panelImage.color = new Color(0.05f, 0.06f, 0.08f, 0.72f);
-
-            var checkpointText = CreateText(panel.transform, "CheckpointText", new Vector2(20f, -14f), 20, TextAnchor.UpperLeft);
-            var statusText = CreateText(panel.transform, "StatusText", new Vector2(20f, -44f), 16, TextAnchor.UpperLeft);
-
-            var barBack = new GameObject("ProgressBack");
-            barBack.transform.SetParent(panel.transform, false);
-            var barBackRect = barBack.AddComponent<RectTransform>();
-            barBackRect.anchorMin = new Vector2(1f, 0f);
-            barBackRect.anchorMax = new Vector2(1f, 0f);
-            barBackRect.pivot = new Vector2(1f, 0f);
-            barBackRect.sizeDelta = new Vector2(280f, 18f);
-            barBackRect.anchoredPosition = new Vector2(-20f, 18f);
-            barBack.AddComponent<Image>().color = new Color(0.18f, 0.2f, 0.24f, 0.95f);
-
-            var barFill = new GameObject("ProgressFill");
-            barFill.transform.SetParent(barBack.transform, false);
-            var barFillRect = barFill.AddComponent<RectTransform>();
-            barFillRect.anchorMin = new Vector2(0f, 0f);
-            barFillRect.anchorMax = new Vector2(1f, 1f);
-            barFillRect.offsetMin = Vector2.zero;
-            barFillRect.offsetMax = Vector2.zero;
-            var fillImage = barFill.AddComponent<Image>();
-            fillImage.type = Image.Type.Filled;
-            fillImage.fillMethod = Image.FillMethod.Horizontal;
-            fillImage.fillAmount = 0f;
-            fillImage.color = new Color(0.93f, 0.46f, 0.17f, 0.98f);
-
-            var hud = canvasObj.AddComponent<RunHudController>();
-            hud.Configure(runController, checkpointText, statusText, fillImage);
-        }
-
-        private static Text CreateText(Transform parent, string name, Vector2 anchoredPosition, int size, TextAnchor alignment)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(parent, false);
-            var rect = go.AddComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0f, 1f);
-            rect.anchorMax = new Vector2(0f, 1f);
-            rect.pivot = new Vector2(0f, 1f);
-            rect.sizeDelta = new Vector2(560f, 28f);
-            rect.anchoredPosition = anchoredPosition;
-
-            var text = go.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-            text.fontSize = size;
-            text.alignment = alignment;
-            text.color = new Color(0.93f, 0.94f, 0.96f, 1f);
-            text.text = string.Empty;
-            return text;
+            var hudObject = new GameObject("HUD");
+            hudObject.transform.SetParent(parent);
+            var hud = hudObject.AddComponent<RunHudController>();
+            hud.Configure(runController);
         }
     }
 }

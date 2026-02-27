@@ -1,4 +1,4 @@
-# Scene Setup (WebGL Obby)
+# Scene Setup (2D Side-Scroller Obby)
 
 If you just want to play immediately, you can skip this file and press Play in an empty scene after importing `Assets/`.
 Runtime auto-bootstrap will create a full demo course.
@@ -26,21 +26,23 @@ Runtime auto-bootstrap will create a full demo course.
 
 ## 2) Player
 
-- `Player` (capsule)
+- `Player` (2D sprite object)
   - Tag: `Player`
   - Components:
-    - `CharacterController`
+    - `Rigidbody2D`
+    - `Collider2D` (CapsuleCollider2D recommended)
     - `PlayerMotor`
     - `RespawnablePlayer`
 
 - Main Camera
   - Attach: `FollowCamera`
   - Assign `target` -> `Player`
+  - Camera type: Orthographic
 
 ## 3) Checkpoints and Hazards
 
 - For each checkpoint object:
-  - BoxCollider (isTrigger = true)
+  - BoxCollider2D (isTrigger = true)
   - `CheckpointTrigger` with increasing `checkpointIndex`
 
 - For hazards:
@@ -55,3 +57,8 @@ Runtime auto-bootstrap will create a full demo course.
   - Texture Compression: Enabled
   - Strip Engine Code: Enabled
 - Keep texture resolution conservative (1K-2K max where possible).
+
+## 5) Input Migration Safety
+
+- During migration, keep `Project Settings -> Player -> Active Input Handling` as `Both`.
+- After validating controls, you can switch to `Input System Package (New)` only.
